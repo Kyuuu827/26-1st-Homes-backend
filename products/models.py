@@ -26,6 +26,7 @@ class SubCategory(TimeStamp):
 
 class ProductGroup(TimeStamp):
     name            = models.CharField(max_length=50)
+    company          = models.CharField(max_length=50)
     displayed_price = models.DecimalField(max_digits=10, decimal_places=3)
     discount_price  = models.DecimalField(max_digits=5, decimal_places=3)
     sub_category    = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
@@ -34,7 +35,6 @@ class ProductGroup(TimeStamp):
         db_table = 'product_groups'
 
 class Product(TimeStamp):
-    company          = models.CharField(max_length=50)
     name             = models.CharField(max_length=50)
     price            = models.DecimalField(max_digits=10, decimal_places=3)
     product_group    = models.ForeignKey('ProductGroup', on_delete=models.CASCADE)
