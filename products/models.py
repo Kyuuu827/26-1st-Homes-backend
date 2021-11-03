@@ -80,20 +80,3 @@ class Delivery(TimeStamp):
     
     class Meta:
         db_table = 'deliveries'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
