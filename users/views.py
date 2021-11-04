@@ -36,7 +36,7 @@ class SignUpView(View):
             User.objects.create(
                 email        = email,
                 password     = hashed_password,
-                phone_number = phont_numnber,
+                phone_number = phone_numnber,
                 nickname     = nickname,
                 name         = name
                 )
