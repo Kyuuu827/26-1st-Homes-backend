@@ -26,18 +26,20 @@ class SubCategory(TimeStamp):
 
 class ProductGroup(TimeStamp):
     name            = models.CharField(max_length=50)
+    company         = models.CharField(max_length=50)
     displayed_price = models.DecimalField(max_digits=10, decimal_places=3)
     discount_price  = models.DecimalField(max_digits=5, decimal_places=3)
     sub_category    = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
+    delivery        = models.ForeignKey("Delivery", on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'product_groups'
 
 class Product(TimeStamp):
-    company          = models.CharField(max_length=50)
     name             = models.CharField(max_length=50)
     price            = models.DecimalField(max_digits=10, decimal_places=3)
     product_group    = models.ForeignKey('ProductGroup', on_delete=models.CASCADE)
+    colors            = models.ManyToManyField("Color", related_name='products', through="ProductColor")
 
     class Meta:
         db_table = 'products'
@@ -49,9 +51,15 @@ class ProductImage(TimeStamp):
     class Meta:
         db_table = 'product_images'
 
+class ProductColor(TimeStamp):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'products_colors'
+
 class Color(TimeStamp):
-    name       = models.CharField(max_length=50)
-    product    = models.ForeignKey('Product', on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
 
     class Meta:
         db_table = 'colors'
@@ -76,7 +84,6 @@ class Delivery(TimeStamp):
     delivery_type = models.CharField(max_length=50)
     payment_type  = models.CharField(max_length=50)
     delivery_fee  = models.DecimalField(max_digits=10, decimal_places=3)
-    product_group = models.ForeignKey("ProductGroup", on_delete=models.CASCADE)
     
     class Meta:
         db_table = 'deliveries'
