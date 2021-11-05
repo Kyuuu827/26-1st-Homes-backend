@@ -57,17 +57,17 @@ class SignInView(View):
             hashed_password = user.password.encode("utf-8")
 
             if not bcrypt.checkpw(data["password"].encode('utf-8'), hashed_password):
-                return JsonResponse({'message' : 'INVALID_USER'}, status=400)
+                return JsonResponse({'message' : 'INVALID_USER'}, status=401)
 
             token = jwt.encode({'id' : user.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
 
-            return JsonResponse({'message' : 'SUCCESS', 'ACCESS_TOKEN' : token}, status=200)
+            return JsonResponse({'message' : 'success', 'ACCESS_TOKEN' : token}, status=200)
 
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 
         except User.DoesNotExist:
-            return JsonResponse({'message' : 'INVALID_USER'}, status=400)
+            return JsonResponse({'message' : 'INVALID_USER'}, status=401)
 
         except json.decoder.JSONDecodeError:
             return JsonResponse({'message' : 'NO DATA'}, status=400)
