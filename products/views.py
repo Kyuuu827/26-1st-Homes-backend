@@ -58,9 +58,13 @@ class ProductListView(View):
         results = [
             {
             'id'               : product.id,
+            'company'          : product.company,
             'price'            : product.displayed_price,
             'discount_rate'    : product.discount_price,
-            'discounted_price' : float(product.displayed_price) * (float(product.discount_price)*0.01),
+            'discounted_price' : round((float(product.displayed_price)-(float(product.displayed_price) * (float(product.discount_price)*0.01))),0),
+            'star_rate'        : product.review_set.aggregate(Avg('star_rate'))['star_rate__avg'],
+            'review'           : product.review_set.aggregate(Count('id'))['id__count']
+
             }for product in products]
 
         return JsonResponse({'products':results}, status = 200)
