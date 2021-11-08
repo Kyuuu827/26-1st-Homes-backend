@@ -13,8 +13,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+<<<<<<< Updated upstream
 from django.urls import path, include
 
 urlpatterns = [
     path('users', include('users.urls'))
+=======
+from django.urls    import path,include
+from products.views import MenuListView
+
+urlpatterns = [
+	path('menus', MenuListView.as_view()), 
+    path('products', include('products.urls')),
+>>>>>>> Stashed changes
 ]
