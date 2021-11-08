@@ -59,7 +59,7 @@ class ProductListView(View):
             {
             'id'               : product.id,
             'company'          : product.company,
-            'product_name'     : list(product.product_set.all())[0].name,
+            'product_name'     : product.name,
             'price'            : product.displayed_price,
             'image_url'        : list(product.productimage_set.all())[0].image_url,
             'discount_rate'    : product.discount_price,
