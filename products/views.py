@@ -2,70 +2,60 @@ import json
 
 from django.http.response import JsonResponse
 from django.views         import View
-from django.db.models     import Q, Avg, Count
+from django.db.models     import Q, Avg, Count, F
 
-from products.models      import *
+from products.models      import (
+    Menu, Category, SubCategory, ProductGroup, Product, 
+    Review, Color, ProductImage, ProductColor
+)
 
-class CategoryView(View):
+class MenuListView(View):
     def get(self, request):
+        menus = Menu.objects.prefetch_related('category_set', 'category_set__subcategory_set')
+
         category_data = [{
             'menu_id'   : menu.id,
             'menu_name' : menu.name,
             'image_url' : menu.image_url,
-            'category'  : [{
-                'category_id'   : category.id,
-                'category_name' : category.name,
-                'subcategory'   : [{
-                    'subcategory_id'   : subcategory.id,
-                    'subcategory_name' : subcategory.name,
+            'categories'  : [{
+                'id'   : category.id,
+                'name' : category.name,
+                'subcategories'   : [{
+                    'id'   : subcategory.id,
+                    'name' : subcategory.name,
                 } for subcategory in category.subcategory_set.all()],
             } for category in menu.category_set.all()],
-        } for menu in Menu.objects.all()]
+        } for menu in menus]
 
         return JsonResponse({'category':category_data}, status = 200)
 
 
-class ProductListView(View):
+class ProductGroupView(View):
     def get(self, request):
-        type = request.GET.get("type")
-        sort = request.GET.get("sort")
+        sub_category_id = request.GET.get("SubCategoryId")
+        ordering        = request.GET.get("ordering")
+        OFFSET          = int(request.GET.get("offset", 16))
+        LIMIT           = request.GET.get("limit")
 
-        q = Q()
-
-        if type:
-            q.add(Q(sub_category_id=type), q.AND)
-
-        products = ProductGroup.objects.filter(q)
-
-        if sort == 'best_ranking':
-            products = products.annotate(star_ranking=Avg('review__star_rate')).order_by('-star_ranking')[0:10]
-
-        if sort == 'ranking':
-            products = products.annotate(star_ranking=Avg('review__star_rate')).order_by('-star_ranking')
-
-        if sort == 'new':
-            products = products.order_by('created_at')
-
-        if sort == 'low_price':
-            products = products.order_by('displayed_price')
-        
-        if sort == 'high_price':
-            products = products.order_by('-displayed_price')
-
-        if sort == 'review':
-            products = products.annotate(review_count=Count('review')).order_by('-review_count')
+        product_groups = ProductGroup.objects.filter(sub_category_id = sub_category_id).annotate(
+            best_ranking     = Avg('review__star_rate'),
+            review_count     = Count('review'),
+            review_star_rate = Avg('review__star_rate'),
+            discounted_price = F('displayed_price') - F('displayed_price') * (F('discount_rate')/100),
+            latest_update    = F('created_at')
+        ).order_by(ordering)[0:OFFSET]
         
         results = [
             {
-            'id'               : product.id,
-            'company'          : product.company,
-            'product_name'     : product.name,
-            'price'            : product.displayed_price,
-            'image_url'        : list(product.productimage_set.all())[0].image_url,
-            'discount_rate'    : product.discount_price,
-            'discounted_price' : round((float(product.displayed_price)-(float(product.displayed_price) * (float(product.discount_price)*0.01))),0),
-            'star_rate'        : product.review_set.aggregate(Avg('star_rate'))['star_rate__avg'],
-            'review'           : product.review_set.aggregate(Count('id'))['id__count']
-            }for product in products]
+            'id'               : product_group.id,
+            'company'          : product_group.company,
+            'product_name'     : product_group.name,
+            'price'            : float(product_group.displayed_price),
+            'image_url'        : product_group.productimage_set.all()[0].image_url,
+            'discount_rate'    : float(product_group.discount_rate),
+            'discounted_price' : float(round(product_group.discounted_price,0)),
+            'star_rate'        : float(product_group.review_star_rate),
+            'review'           : product_group.review_count
+            }for product_group in product_groups]
 
         return JsonResponse({'products':results}, status = 200)
