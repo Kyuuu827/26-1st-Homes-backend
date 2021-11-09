@@ -1,36 +1,43 @@
-from django.http import JsonResponse
-from django.views    import View
-from django.db.models import Avg
+from django.http      import JsonResponse
+from django.views     import View
+from django.db.models import Avg, F
 
-from products.models import ProductGroup
+from products.models  import ProductGroup
 
-class ProductDetailView(View):
-    def get(self, request, id):
-        if not ProductGroup.objects.filter(id=id).exists():
-            return JsonResponse({'message' : 'INVAILD_PRODUCT'}, status=401)
+class ProductGroupView(View):
+    def get(self, request):
+        try :
+            sub_category_id  = request.GET.get("SubCategoryId")
+            product_group_id = request.GET.get("ProductGroupId")
 
-        product_group = ProductGroup.objects.get(id=id)
+            product_groups   = ProductGroup.objects.prefetch_related('product_set').select_related('delivery',).filter(sub_category_id = sub_category_id).annotate(
+                star_ranking     = Avg('review__star_rate'),
+                discounted_price = F('displayed_price') - F('displayed_price')  * (F('discount_price')/100)
+            ).get(id = product_group_id)
 
-        products = {
-            'id'                : product_group.id,
-            'name'              : product_group.name,
-            'displayed_price'   : float(product_group.displayed_price),
-            'discount_rate'     : float(product_group.discount_price),
-            'discounted_price'  : round(float(product_group.displayed_price) * (100 - float(product_group.discount_price))*0.01,0),
-            'star_rate'         : round(product_group.review_set.aggregate(Avg('star_rate'))['star_rate__avg'],1),
-            'image'             : [product.image_url for product in product_group.productimage_set.all()],
-            'company'           : product_group.company,
-            'delivery_type'     : product_group.delivery.delivery_type,
-            'payment_type'      : product_group.delivery.payment_type,
-            'delivery_fee'      : float(product_group.delivery.delivery_fee),
-            'product'           : [
-                                      {
-                                          'id' : product.id,
-                                          'name' : product.name,
-                                          'price' : product.price,
-                                          'color' : list(product.colors.values_list('name', flat=True))
-                                  } for product in product_group.product_set.all()
-            ]
-        }
+            product_group = {
+                'id'                : product_groups.id,
+                'name'              : product_groups.name,
+                'displayed_price'   : float(product_groups.displayed_price),
+                'discount_rate'     : float(product_groups.discount_price),
+                'discounted_price'  : float(round(product_groups.discounted_price,0)),
+                'star_rate'         : float(round((product_groups.star_ranking),1)),
+                'image'             : [product.image_url for product in product_groups.productimage_set.all()],
+                'company'           : product_groups.company,
+                'delivery_type'     : product_groups.delivery.delivery_type,
+                'payment_type'      : product_groups.delivery.payment_type,
+                'delivery_fee'      : float(product_groups.delivery.delivery_fee),
+                'product'           : [
+                    {
+                        'id' : product.id,
+                        'name' : product.name,
+                        'price' : product.price,
+                    } for product in product_groups.product_set.all()
+                ],
+                'color' : list(product_groups.product_set.all()[0].colors.values("name","id"))
+            }
 
-        return JsonResponse({'products' : products}, status=200)
+            return JsonResponse({'product_group' : product_group}, status=200)
+
+        except ProductGroup.DoesNotExist:
+            return JsonResponse({'message' : 'INVALID_PRODUCT'}, status=404)
