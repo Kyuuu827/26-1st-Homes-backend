@@ -5,15 +5,13 @@ from django.db.models import Avg, F
 from products.models  import ProductGroup
 
 class ProductGroupView(View):
-    def get(self, request):
-        try :
-            sub_category_id  = request.GET.get("SubCategoryId")
-            product_group_id = request.GET.get("ProductGroupId")
+    def get(self, request, id):
+        try:
 
-            product_groups   = ProductGroup.objects.prefetch_related('product_set').select_related('delivery',).filter(sub_category_id = sub_category_id).annotate(
+            product_groups   = ProductGroup.objects.prefetch_related('product_set').select_related('delivery').annotate(
                 star_ranking     = Avg('review__star_rate'),
                 discounted_price = F('displayed_price') - F('displayed_price')  * (F('discount_price')/100)
-            ).get(id = product_group_id)
+            ).get(id=id)
 
             product_group = {
                 'id'                : product_groups.id,
@@ -38,6 +36,6 @@ class ProductGroupView(View):
             }
 
             return JsonResponse({'product_group' : product_group}, status=200)
-
+        
         except ProductGroup.DoesNotExist:
             return JsonResponse({'message' : 'INVALID_PRODUCT'}, status=404)
