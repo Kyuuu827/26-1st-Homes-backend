@@ -28,7 +28,7 @@ class ProductGroup(TimeStamp):
     name            = models.CharField(max_length=50)
     company         = models.CharField(max_length=50)
     displayed_price = models.DecimalField(max_digits=10, decimal_places=3)
-    discount_price  = models.DecimalField(max_digits=5, decimal_places=3)
+    discount_rate   = models.DecimalField(max_digits=5, decimal_places=3)
     sub_category    = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
     delivery        = models.ForeignKey("Delivery", on_delete=models.CASCADE)
 
@@ -39,7 +39,7 @@ class Product(TimeStamp):
     name             = models.CharField(max_length=50)
     price            = models.DecimalField(max_digits=10, decimal_places=3)
     product_group    = models.ForeignKey('ProductGroup', on_delete=models.CASCADE)
-    colors            = models.ManyToManyField("Color", related_name='products', through="ProductColor")
+    colors           = models.ManyToManyField("Color", related_name='products', through="ProductColor")
 
     class Meta:
         db_table = 'products'
