@@ -38,11 +38,11 @@ class ProductGroupsView(View):
         LIMIT           = int(request.GET.get("limit", 16))
 
         product_groups = ProductGroup.objects.filter(sub_category_id = sub_category_id).annotate(
-            best_ranking     = Avg('review__star_rate'),
-            review_count     = Count('review'),
-            review_star_rate = Avg('review__star_rate'),
-            discounted_price = F('displayed_price') - F('displayed_price') * (F('discount_rate')/100),
-            latest_update    = F('created_at')
+            best_ranking      = Avg('review__star_rate'),
+            review_count      = Count('review'),
+            review_star_point = Avg('review__star_rate'),
+            discounted_price  = F('displayed_price') - F('displayed_price') * (F('discount_rate')/100),
+            latest_update     = F('created_at')
         ).order_by(ordering)[OFFSET:OFFSET+LIMIT]
         
         results = [
@@ -54,7 +54,7 @@ class ProductGroupsView(View):
             'image_url'        : product_group.productimage_set.all()[0].image_url,
             'discount_rate'    : float(product_group.discount_rate),
             'discounted_price' : float(round(product_group.discounted_price,0)),
-            'star_rate'        : float(product_group.review_star_rate),
+            'star_point'       : float(product_group.review_star_point),
             'review'           : product_group.review_count
             }for product_group in product_groups]
 
