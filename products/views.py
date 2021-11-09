@@ -2,7 +2,7 @@ import json
 
 from django.http.response import JsonResponse
 from django.views         import View
-from django.db.models     import Q, Avg, Count, F
+from django.db.models     import Avg, Count, F
 
 from products.models      import (
     Menu, Category, SubCategory, ProductGroup, Product, 
@@ -13,7 +13,7 @@ class MenuListView(View):
     def get(self, request):
         menus = Menu.objects.prefetch_related('category_set', 'category_set__subcategory_set')
 
-        category_data = [{
+        menu_data = [{
             'menu_id'   : menu.id,
             'menu_name' : menu.name,
             'image_url' : menu.image_url,
@@ -27,15 +27,15 @@ class MenuListView(View):
             } for category in menu.category_set.all()],
         } for menu in menus]
 
-        return JsonResponse({'category':category_data}, status = 200)
+        return JsonResponse({'menus':menu_data}, status = 200)
 
 
-class ProductGroupView(View):
+class ProductGroupsView(View):
     def get(self, request):
         sub_category_id = request.GET.get("SubCategoryId")
         ordering        = request.GET.get("ordering")
-        OFFSET          = int(request.GET.get("offset", 16))
-        LIMIT           = request.GET.get("limit")
+        OFFSET          = int(request.GET.get("offset", 0))
+        LIMIT           = int(request.GET.get("limit", 16))
 
         product_groups = ProductGroup.objects.filter(sub_category_id = sub_category_id).annotate(
             best_ranking     = Avg('review__star_rate'),
@@ -43,7 +43,7 @@ class ProductGroupView(View):
             review_star_rate = Avg('review__star_rate'),
             discounted_price = F('displayed_price') - F('displayed_price') * (F('discount_rate')/100),
             latest_update    = F('created_at')
-        ).order_by(ordering)[0:OFFSET]
+        ).order_by(ordering)[OFFSET:OFFSET+LIMIT]
         
         results = [
             {
@@ -58,4 +58,4 @@ class ProductGroupView(View):
             'review'           : product_group.review_count
             }for product_group in product_groups]
 
-        return JsonResponse({'products':results}, status = 200)
+        return JsonResponse({'product_groups':results}, status = 200)
