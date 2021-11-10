@@ -3,7 +3,7 @@ from django.db.models.fields import IntegerField
 
 from core.models     import TimeStamp
 from users.models    import User, Address
-from products.models import Product
+from products.models import Product, Color
 
 class Order(TimeStamp):
     user         = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -16,6 +16,7 @@ class Order(TimeStamp):
 class OrderItem(TimeStamp):
     order        = models.ForeignKey("Order", on_delete=models.CASCADE)
     product      = models.ForeignKey(Product, on_delete=models.CASCADE)
+    color        = models.ForeignKey(Color, on_delete=models.CASCADE)
     quantity     = models.IntegerField(default=0)
     status       = models.CharField(max_length=30)
 
