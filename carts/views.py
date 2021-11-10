@@ -18,7 +18,7 @@ class CartListView(View):
             quantity = data['quantity']
             color_id = data['ColorId']
 
-            if not Cart.objects.filter(product_id=product_id, color_id=color_id).exists():
+            if not Cart.objects.filter(user_id=user_id, product_id=product_id, color_id=color_id).exists():
                 Cart.objects.create(
                     product_id = product_id,
                     quantity = quantity,
@@ -26,7 +26,7 @@ class CartListView(View):
                     color_id = color_id
                 )
             else:
-                cart = Cart.objects.filter(product_id=product_id).get(color_id=color_id)
+                cart = Cart.objects.filter(user_id=user.id, product_id=product_id).get(color_id=color_id)
                 cart.quantity += quantity
                 cart.save()
             return JsonResponse({'message' : 'SUCCESS'}, status = 201)
@@ -40,7 +40,7 @@ class CartListView(View):
     @signin_decorator
     def get(self, request):
         try:
-            carts= Cart.objects.select_related('product','color','product__product_group', 'product__product_group__delivery').prefetch_related('product__product_group__productimage_set').filter(user_id = request.user.id)
+            carts= Cart.objects.select_related('product','color','product__product_group', 'product__product_group__delivery').prefetch_related('product__product_group__productimage_set')
 
             cart_items =[{
                 'product_name'           : cart.product.name,
