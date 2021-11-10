@@ -3,7 +3,7 @@ from django.db.models.fields import IntegerField
 
 from core.models     import TimeStamp
 from users.models    import User
-from products.models import Product
+from products.models import Product, Color
 
 class Cart(TimeStamp):
     user       = models.ForeignKey(User, on_delete=models.CASCADE)
