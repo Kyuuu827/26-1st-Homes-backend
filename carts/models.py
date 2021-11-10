@@ -9,6 +9,7 @@ class Cart(TimeStamp):
     user       = models.ForeignKey(User, on_delete=models.CASCADE)
     product    = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity   = models.IntegerField(default=0)
+    color      = models.ForeignKey(Color, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'carts'

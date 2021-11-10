@@ -65,14 +65,14 @@ class ProductGroupView(View):
 
             product_groups   = ProductGroup.objects.prefetch_related('product_set').select_related('delivery').annotate(
                 star_ranking     = Avg('review__star_rate'),
-                discounted_price = F('displayed_price') - F('displayed_price')  * (F('discount_price')/100)
+                discounted_price = F('displayed_price') - F('displayed_price')  * (F('discount_rate')/100)
             ).get(id=id)
 
             product_group = {
                 'id'                : product_groups.id,
                 'name'              : product_groups.name,
                 'displayed_price'   : float(product_groups.displayed_price),
-                'discount_rate'     : float(product_groups.discount_price),
+                'discount_rate'     : float(product_groups.discount_rate),
                 'discounted_price'  : float(round(product_groups.discounted_price,0)),
                 'star_rate'         : float(round((product_groups.star_ranking),1)),
                 'image'             : [product.image_url for product in product_groups.productimage_set.all()],
