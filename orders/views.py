@@ -6,8 +6,9 @@ from django.db        import transaction
 
 from orders.models    import Order, OrderItem, OrderStatus
 from products.models  import Product
-from users.models  import User
+from users.models     import User
 from core.utils       import signin_decorator
+
 
 class OrderItemView(View):
     @signin_decorator
