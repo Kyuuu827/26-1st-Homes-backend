@@ -59,7 +59,7 @@ class ProductColor(TimeStamp):
         db_table = 'products_colors'
 
 class Color(TimeStamp):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True)
 
     class Meta:
         db_table = 'colors'
