@@ -24,8 +24,7 @@ class CartListView(View):
                 color_id   = color_id,
                 user_id    = user_id
             )
-            if created:
-                cart.quantity = 0
+
             cart.quantity +=quantity
             cart.save()
 
@@ -68,16 +67,13 @@ class CartListView(View):
 
     @signin_decorator
     def delete(self, request, id):
-        Cart.objects.filter(user_id=request.user.id).get(id=id).delete()
+        Cart.objects.filter(user_id=request.user.id, id=id).delete()
 
         return JsonResponse({'message' : 'SUCCESS'}, status=204)
 
     @signin_decorator
     def patch(self, request, id):
         data          = json.loads(request.body)
-        quantity      = data['quantity']
-        cart          = Cart.objects.filter(user_id=request.user.id).get(id=id)
-        cart.quantity = quantity
-        cart.save()
+        cart          = Cart.objects.filter(user_id=request.user.id, id=id).update(quantity = data['quantity'])
 
-        return JsonResponse({'message' : 'SUCCESS'}, status=201)
+        return JsonResponse({'message' : 'SUCCESS'}, status=200)
