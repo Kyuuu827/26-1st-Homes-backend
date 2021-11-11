@@ -24,6 +24,12 @@ class OrderItem(TimeStamp):
         db_table = 'order_items'
 
 class OrderStatus(TimeStamp):
+    class Status(models.IntegerChoices):
+        BEFORE_DEPOSIT   = 1 
+        STAND_BY         = 2 
+        DEPOSIT_COMPLTED = 3 
+        CANCEL           = 4 
+
     description = models.CharField(max_length=50)
     
     class Meta:
