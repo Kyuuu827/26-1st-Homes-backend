@@ -74,7 +74,7 @@ class ProductGroupView(View):
                 'displayed_price'   : float(product_groups.displayed_price),
                 'discount_rate'     : float(product_groups.discount_rate),
                 'discounted_price'  : float(round(product_groups.discounted_price,0)),
-                'star_rate'         : float(round((product_groups.star_ranking),1)),
+                'star_point'        : float(round((product_groups.star_ranking),1)),
                 'image'             : [product.image_url for product in product_groups.productimage_set.all()],
                 'company'           : product_groups.company,
                 'delivery_type'     : product_groups.delivery.delivery_type,

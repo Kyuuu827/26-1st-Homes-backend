@@ -52,7 +52,7 @@ class CartListView(View):
                     'company'                : cart.product.product_group.company,
                     'color'                  : { 
                         'color_name' :cart.color.name,
-                        'color_id'  :cart.colr.id
+                        'color_id'  :cart.color.id
                     },
                     'delivery_fee'           : cart.product.product_group.delivery.delivery_fee,
                     'delivery_payment_type'  : cart.product.product_group.delivery.payment_type
