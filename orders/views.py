@@ -3,11 +3,10 @@ import json
 from django.views     import View
 from django.http      import JsonResponse
 from django.db        import transaction
-from django.db.models import Sum, F
 
 from orders.models    import Order, OrderItem, OrderStatus
-from products.models  import Product, ProductImage
-from users.models  import User, Address
+from products.models  import Product
+from users.models  import User
 from core.utils       import signin_decorator
 
 class OrderItemView(View):
