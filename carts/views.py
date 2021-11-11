@@ -50,7 +50,8 @@ class CartListView(View):
                     'quantity'               : cart.quantity,
                     'image'                  : cart.product.product_group.productimage_set.all()[0].image_url,
                     'company'                : cart.product.product_group.company,
-                    'color'                  : cart.color.name,
+                    'color'                  : { 'color_name' :cart.color.name,
+                                                 'color_id'  :cart.colr.id},
                     'delivery_fee'           : cart.product.product_group.delivery.delivery_fee,
                     'delivery_payment_type'  : cart.product.product_group.delivery.payment_type
                 }
